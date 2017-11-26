@@ -27,7 +27,7 @@ function rp_get_screen_ids() {
 		'food_menu',
 		'edit-food_group',
 		'food_group',
-		'edit-food_menu_cat'
+		'edit-food_menu_cat',
 	);
 
 	return apply_filters( 'restaurantpress_screen_ids', $screen_ids );
@@ -38,7 +38,7 @@ function rp_get_screen_ids() {
  *
  * Loops though the restaurantpress options array and outputs each field.
  *
- * @param array $options Opens array to output
+ * @param array $options Opens array to output.
  */
 function restaurantpress_admin_fields( $options ) {
 

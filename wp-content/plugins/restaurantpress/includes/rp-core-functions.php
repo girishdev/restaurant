@@ -23,6 +23,19 @@ include( RP_ABSPATH . 'includes/rp-term-functions.php' );
 include( RP_ABSPATH . 'includes/rp-widget-functions.php' );
 
 /**
+ * Short Description (excerpt).
+ */
+add_filter( 'restaurantpress_short_description', 'wptexturize' );
+add_filter( 'restaurantpress_short_description', 'convert_smilies' );
+add_filter( 'restaurantpress_short_description', 'convert_chars' );
+add_filter( 'restaurantpress_short_description', 'wpautop' );
+add_filter( 'restaurantpress_short_description', 'shortcode_unautop' );
+add_filter( 'restaurantpress_short_description', 'prepend_attachment' );
+add_filter( 'restaurantpress_short_description', 'do_shortcode', 11 ); // AFTER wpautop()
+add_filter( 'restaurantpress_short_description', 'rp_format_food_short_description', 9999999 );
+add_filter( 'restaurantpress_short_description', 'rp_do_oembeds' );
+
+/**
  * Define a constant if it is not already defined.
  *
  * @since 1.4.0
@@ -85,7 +98,7 @@ function rp_get_template( $template_name, $args = array(), $template_path = '', 
 	$located = rp_locate_template( $template_name, $template_path, $default_path );
 
 	if ( ! file_exists( $located ) ) {
-		_doing_it_wrong( __FUNCTION__, sprintf( '<code>%s</code> does not exist.', $located ), '1.4.0' );
+		rp_doing_it_wrong( __FUNCTION__, sprintf( '<code>%s</code> does not exist.', $located ), '1.4.0' );
 		return;
 	}
 
@@ -545,7 +558,7 @@ function rp_get_image_size( $image_size ) {
 		$size = array(
 			'width'  => $width,
 			'height' => $height,
-			'crop'   => $crop
+			'crop'   => $crop,
 		);
 
 		$image_size = $width . '_' . $height;
@@ -560,7 +573,7 @@ function rp_get_image_size( $image_size ) {
 		$size = array(
 			'width'  => '300',
 			'height' => '300',
-			'crop'   => 0
+			'crop'   => 0,
 		);
 	}
 
@@ -606,6 +619,25 @@ function rp_print_js() {
 }
 
 /**
+ * Set a cookie - wrapper for setcookie using WP constants.
+ *
+ * @since 1.5.0
+ *
+ * @param string  $name   Name of the cookie being set.
+ * @param string  $value  Value of the cookie.
+ * @param integer $expire Expiry of the cookie.
+ * @param bool    $secure Whether the cookie should be served only over https.
+ */
+function rp_setcookie( $name, $value, $expire = 0, $secure = false ) {
+	if ( ! headers_sent() ) {
+		setcookie( $name, $value, $expire, COOKIEPATH ? COOKIEPATH : '/', COOKIE_DOMAIN, $secure );
+	} elseif ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+		headers_sent( $file, $line );
+		trigger_error( "{$name} cookie cannot be set - headers already sent by {$file} on line {$line}", E_USER_NOTICE );
+	}
+}
+
+/**
  * RestaurantPress Core Supported Themes.
  * @return string[]
  */
@@ -616,8 +648,8 @@ function rp_get_core_supported_themes() {
 /**
  * Display a RestaurantPress help tip.
  *
- * @param  string $tip Help tip text
- * @param  bool   $allow_html Allow sanitized HTML if true or escape
+ * @param  string $tip Help tip text.
+ * @param  bool   $allow_html Allow sanitized HTML if true or escape.
  * @return string
  */
 function rp_help_tip( $tip, $allow_html = false ) {
@@ -628,6 +660,18 @@ function rp_help_tip( $tip, $allow_html = false ) {
 	}
 
 	return '<span class="restaurantpress-help-tip" data-tip="' . $tip . '"></span>';
+}
+
+/**
+ * Wrapper for set_time_limit to see if it is enabled.
+ *
+ * @since 1.5.0
+ * @param int $limit
+ */
+function rp_set_time_limit( $limit = 0 ) {
+	if ( function_exists( 'set_time_limit' ) && false === strpos( ini_get( 'disable_functions' ), 'set_time_limit' ) && ! ini_get( 'safe_mode' ) ) {
+		@set_time_limit( $limit );
+	}
 }
 
 /**

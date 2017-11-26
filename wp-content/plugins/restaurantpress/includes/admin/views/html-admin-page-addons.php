@@ -5,6 +5,7 @@
  * @var string $view
  * @var object $addons
  */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -34,7 +35,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 						<?php else : ?>
 							<h2><?php echo esc_html( $addon->title ); ?></h2>
 						<?php endif; ?>
-						<span class="price"><?php echo wp_kses_post( $addon->price ); ?></span>
+						<?php if ( ! empty( $addon->price ) ) : ?>
+							<span class="price"><?php wp_kses_post( $addon->price ); ?></span>
+						<?php endif; ?>
 						<p><?php echo wp_kses_post( $addon->excerpt ); ?></p>
 					</a>
 				</li>

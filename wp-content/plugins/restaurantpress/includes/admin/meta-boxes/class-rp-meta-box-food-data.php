@@ -31,7 +31,7 @@ class RP_Meta_Box_Food_Data {
 		<div class="panel-wrap food_data">
 			<ul class="food_data_tabs rp-tabs">
 				<?php foreach ( self::get_food_data_tabs() as $key => $tab ) : ?>
-					<li class="<?php echo $key; ?>_options <?php echo $key; ?>_tab <?php echo implode( ' ' , (array) $tab['class'] ); ?>">
+					<li class="<?php echo $key; ?>_options <?php echo $key; ?>_tab <?php echo esc_attr( isset( $tab['class'] ) ? implode( ' ' , (array) $tab['class'] ) : '' ); ?>">
 						<a href="#<?php echo $tab['target']; ?>"><span><?php echo esc_html( $tab['label'] ); ?></span></a>
 					</li>
 				<?php endforeach; ?>
@@ -133,10 +133,13 @@ class RP_Meta_Box_Food_Data {
 			$sale_price = '';
 		}
 
+		// If sale price is set, respect it as actual price.
+		$price = $sale_price ? $sale_price : $regular_price;
+
 		// Save mata data.
-		update_post_meta( $post_id, '_price', $sale_price ? $sale_price : $regular_price );
-		update_post_meta( $post_id, '_regular_price', $regular_price );
-		update_post_meta( $post_id, '_sale_price', $sale_price );
+		update_post_meta( $post_id, '_price', rp_format_decimal( $price ) );
+		update_post_meta( $post_id, '_regular_price', rp_format_decimal( $regular_price ) );
+		update_post_meta( $post_id, '_sale_price', rp_format_decimal( $sale_price ) );
 		update_post_meta( $post_id, '_chef_badge', $chef_flash );
 		update_post_meta( $post_id, '_featured', $featured );
 	}

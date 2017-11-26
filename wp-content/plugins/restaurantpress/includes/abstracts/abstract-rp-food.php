@@ -141,7 +141,7 @@ class RP_Food {
 	 * @return array
 	 */
 	public function get_gallery_image_ids() {
-		return wp_parse_id_list( get_post_meta( $this->get_id(), '_food_image_gallery', true ) );
+		return array_filter( explode( ',', get_post_meta( $this->get_id(), '_food_image_gallery', true ) ) );
 	}
 
 	/*
@@ -171,14 +171,19 @@ class RP_Food {
 	/**
 	 * Get the suffix to display after prices > 0.
 	 *
-	 * @param  string $price to calculate, left blank to just use get_price()
+	 * @param  string $price to calculate, left blank to just use get_price().
 	 * @return string
 	 */
 	public function get_price_suffix( $price = '' ) {
-		if ( '' === $price ) {
-			$price = $this->get_price();
+		$html = '';
+
+		if ( ( $suffix = get_option( 'restaurantpress_price_display_suffix' ) ) ) {
+			if ( '' === $price ) {
+				$price = $this->get_price();
+			}
+			$html = ' <small class="restaurantpress-price-suffix">' . wp_kses_post( $suffix ) . '</small>';
 		}
-		return apply_filters( 'restaurantpress_get_price_suffix', '', $this, $price );
+		return apply_filters( 'restaurantpress_get_price_suffix', $html, $this, $price );
 	}
 
 	/**
@@ -190,9 +195,9 @@ class RP_Food {
 		if ( '' === $this->get_price() ) {
 			$price = apply_filters( 'restaurantpress_empty_price_html', '', $this );
 		} elseif ( $this->get_sale_price() ) {
-			$price = rp_format_sale_price( $this->get_regular_price(), $this->get_price() ). $this->get_price_suffix();
+			$price = rp_format_sale_price( $this->get_regular_price(), $this->get_price() ) . $this->get_price_suffix();
 		} else {
-			$price = rp_price( $this->get_price() );
+			$price = rp_price( $this->get_price() ) . $this->get_price_suffix();
 		}
 
 		return apply_filters( 'restaurantpress_get_price_html', $price, $this );

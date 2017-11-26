@@ -25,7 +25,7 @@ final class RestaurantPress {
 	 *
 	 * @var string
 	 */
-	public $version = '1.4.0';
+	public $version = '1.5.0';
 
 	/**
 	 * The single instance of the class.
@@ -35,11 +35,25 @@ final class RestaurantPress {
 	protected static $_instance = null;
 
 	/**
+	 * Session instance.
+	 *
+	 * @var RP_Session|RP_Session_Handler
+	 */
+	public $session = null;
+
+	/**
 	 * Food factory instance.
 	 *
 	 * @var RP_Food_Factory
 	 */
 	public $food_factory = null;
+
+	/**
+	 * Array of deprecated hook handlers.
+	 *
+	 * @var array of RP_Deprecated_Hooks
+	 */
+	public $deprecated_hook_handlers = array();
 
 	/**
 	 * Main RestaurantPress Instance.
@@ -59,18 +73,20 @@ final class RestaurantPress {
 
 	/**
 	 * Cloning is forbidden.
+	 *
 	 * @since 1.0
 	 */
 	public function __clone() {
-		_doing_it_wrong( __FUNCTION__, __( 'Cheatin&#8217; huh?', 'restaurantpress' ), '1.0' );
+		rp_doing_it_wrong( __FUNCTION__, __( 'Cheatin&#8217; huh?', 'restaurantpress' ), '1.0' );
 	}
 
 	/**
 	 * Unserializing instances of this class is forbidden.
+	 *
 	 * @since 1.0
 	 */
 	public function __wakeup() {
-		_doing_it_wrong( __FUNCTION__, __( 'Cheatin&#8217; huh?', 'restaurantpress' ), '1.0' );
+		rp_doing_it_wrong( __FUNCTION__, __( 'Cheatin&#8217; huh?', 'restaurantpress' ), '1.0' );
 	}
 
 	/**
@@ -104,14 +120,15 @@ final class RestaurantPress {
 		$this->define( 'RP_ABSPATH', dirname( RP_PLUGIN_FILE ) . '/' );
 		$this->define( 'RP_PLUGIN_BASENAME', plugin_basename( RP_PLUGIN_FILE ) );
 		$this->define( 'RP_VERSION', $this->version );
+		$this->define( 'RP_SESSION_CACHE_GROUP', 'rp_session_id' );
 		$this->define( 'RP_TEMPLATE_DEBUG_MODE', false );
 	}
 
 	/**
 	 * Define constant if not already set.
 	 *
-	 * @param string $name
-	 * @param string|bool $value
+	 * @param string      $name  Constant name.
+	 * @param string|bool $value Constant value.
 	 */
 	private function define( $name, $value ) {
 		if ( ! defined( $name ) ) {
@@ -151,15 +168,21 @@ final class RestaurantPress {
 		 * Abstract classes.
 		 */
 		include_once( RP_ABSPATH . 'includes/abstracts/abstract-rp-food.php' ); // Foods.
+		include_once( RP_ABSPATH . 'includes/abstracts/abstract-rp-deprecated-hooks.php' );
+		include_once( RP_ABSPATH . 'includes/abstracts/abstract-rp-session.php' );
 
 		/**
 		 * Core classes.
 		 */
 		include_once( RP_ABSPATH . 'includes/rp-core-functions.php' );
-		include_once( RP_ABSPATH . 'includes/class-rp-post-types.php' ); // Registers post types
+		include_once( RP_ABSPATH . 'includes/class-rp-post-types.php' ); // Registers post types.
 		include_once( RP_ABSPATH . 'includes/class-rp-install.php' );
+		include_once( RP_ABSPATH . 'includes/class-rp-post-data.php' );
 		include_once( RP_ABSPATH . 'includes/class-rp-ajax.php' );
 		include_once( RP_ABSPATH . 'includes/class-rp-food-factory.php' ); // Food factory.
+		include_once( RP_ABSPATH . 'includes/class-rp-cache-helper.php' ); // Cache Helper.
+		include_once( RP_ABSPATH . 'includes/class-rp-deprecated-action-hooks.php' );
+		include_once( RP_ABSPATH . 'includes/class-rp-deprecated-filter-hooks.php' );
 
 		if ( $this->is_request( 'admin' ) ) {
 			include_once( RP_ABSPATH . 'includes/admin/class-rp-admin.php' );
@@ -168,16 +191,21 @@ final class RestaurantPress {
 		if ( $this->is_request( 'frontend' ) ) {
 			$this->frontend_includes();
 		}
+
+		if ( $this->is_request( 'frontend' ) || $this->is_request( 'cron' ) ) {
+			include_once( RP_ABSPATH . 'includes/class-rp-session-handler.php' );
+		}
 	}
 
 	/**
 	 * Include required frontend files.
 	 */
 	public function frontend_includes() {
+		include_once( RP_ABSPATH . 'includes/rp-notice-functions.php' );
 		include_once( RP_ABSPATH . 'includes/rp-template-hooks.php' );
-		include_once( RP_ABSPATH . 'includes/class-rp-template-loader.php' );    // Template Loader
-		include_once( RP_ABSPATH . 'includes/class-rp-frontend-scripts.php' );   // Frontend Scripts
-		include_once( RP_ABSPATH . 'includes/class-rp-shortcodes.php' );         // Shortcodes Class
+		include_once( RP_ABSPATH . 'includes/class-rp-template-loader.php' );    // Template Loader.
+		include_once( RP_ABSPATH . 'includes/class-rp-frontend-scripts.php' );   // Frontend Scripts.
+		include_once( RP_ABSPATH . 'includes/class-rp-shortcodes.php' );         // Shortcodes Class.
 	}
 
 	/**
@@ -198,7 +226,15 @@ final class RestaurantPress {
 		$this->load_plugin_textdomain();
 
 		// Load class instances.
-		$this->food_factory = new RP_Food_Factory(); // Food Factory to create new food instances.
+		$this->food_factory                        = new RP_Food_Factory(); // Food Factory to create new food instances.
+		$this->deprecated_hook_handlers['actions'] = new RP_Deprecated_Action_Hooks();
+		$this->deprecated_hook_handlers['filters'] = new RP_Deprecated_Filter_Hooks();
+
+		// Session class, handles session data for users - can be overwritten if custom handler is needed.
+		if ( $this->is_request( 'frontend' ) || $this->is_request( 'cron' ) ) {
+			$session_class  = apply_filters( 'restaurantpress_session_handler', 'RP_Session_Handler' );
+			$this->session  = new $session_class();
+		}
 
 		// Init action.
 		do_action( 'restaurantpress_init' );
@@ -255,6 +291,7 @@ final class RestaurantPress {
 
 	/**
 	 * Get the plugin url.
+	 *
 	 * @return string
 	 */
 	public function plugin_url() {
@@ -263,6 +300,7 @@ final class RestaurantPress {
 
 	/**
 	 * Get the plugin path.
+	 *
 	 * @return string
 	 */
 	public function plugin_path() {
@@ -271,6 +309,7 @@ final class RestaurantPress {
 
 	/**
 	 * Get the template path.
+	 *
 	 * @return string
 	 */
 	public function template_path() {
@@ -279,6 +318,7 @@ final class RestaurantPress {
 
 	/**
 	 * Get Ajax URL.
+	 *
 	 * @return string
 	 */
 	public function ajax_url() {

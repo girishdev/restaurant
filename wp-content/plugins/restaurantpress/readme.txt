@@ -2,8 +2,8 @@
 Contributors: WPEverest, shivapoudel
 Tags: restaurant, appetizer, food, cafe, menu, dining, drink
 Requires at least: 4.4
-Tested up to: 4.8
-Stable tag: 1.4.1
+Tested up to: 4.9
+Stable tag: 1.5.0
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -13,9 +13,12 @@ Allows you to create awesome restaurant menus for restaurants, bars, and cafes i
 
 Allows you to create awesome restaurant menus for restaurants, bars, and cafes in no time. The plugin provides modern responsive menu templates that adapt to any devices. Choose from the single column, two column or grid layout templates. Supports unlimited menu items and menu grouping as per your need. The menus can be showcased in pages, posts, widgets using built-in shortcode.
 
-Get access to [free support](https://wpeverest.com/support-forum/)
+
+View [All Features](https://wpeverest.com/wordpress-plugins/restaurantpress/)
 
 Check [RestaurantPress Plugin Demo](http://demo.wpeverest.com/restaurantpress/)
+
+Get access to [free support](https://wpeverest.com/support-forum/)
 
 Step by Step tutorial [ Check documentation](http://docs.wpeverest.com/docs/restaurantpress/)
 
@@ -25,7 +28,7 @@ Step by Step tutorial [ Check documentation](http://docs.wpeverest.com/docs/rest
 * Two Column Layout
 * Grid Layout
 * Responsive Design
-* Shortcode to embed menu in Posts and Page.
+* Shortcode to embed menu in Posts and Pages.
 * Supports multiple menus
 * Single Page support for the menu item.
 * Gallery support for each menu item.
@@ -60,15 +63,28 @@ Yes you can! Join in on our [GitHub repository](https://github.com/wpeverest/res
 
 == Changelog ==
 
-= 1.4.1 - 23/09/2017 =
-* Feature - Added extensions page.
-* Feature - Supporting Custom Post Type Template.
-* Tweak - Introduced `rp_date_format()` function.
-* Tweak - Introduced `rp_time_format()` function.
+= 1.5.0 - 16/10/2017 =
+* Feature - New default session handler.
+* Fix - Conflicts with W3 Total Cache DB Cache.
+* Fix - Display group page image in photoSwipe.
+* Fix - Formats decimals when saved in settings.
+* Fix - Format decimal numbers ready for DB storage.
+* Fix - Formats curency symbols when saved in settings.
+* Fix - Undefined function `restaurantpress_page_title`.
+* Tweak - Process the oEmbeds for food short description.
+* Tweak - Drop RP tables in wpmu_drop_tables (for multisite).
+* Tweak - Added phone number and email form validation class.
+* Tweak - Support Jetpack Markdown for food short description.
+* Tweak - Introduced `rp_set_time_limit()` core function.
+* Tweak - Introduced `rp_format_content()` formatting function.
+* Tweak - Introduced `rp_format_phone_number()` formatting function.
+* Tweak - Introduced `restaurantpress_form_field()` template function.
+* Tweak - Remove `adjacent_posts_rel_link_wp_head` - pointless for food.
+* Tweak - Add a basic screen-reader-text style for themes which do not define it.
 
 [See changelog for all versions](https://raw.githubusercontent.com/wpeverest/restaurantpress/master/CHANGELOG.txt).
 
 == Upgrade Notice ==
 
-= 1.4.0 =
-1.4.0 is a major update so it is important that you make backups, and ensure themes and extensions are 1.4 compatible before upgrading.
+= 1.5.0 =
+1.5.0 is a major update so it is important that you make backups, and ensure themes and extensions are 1.4 compatible before upgrading.

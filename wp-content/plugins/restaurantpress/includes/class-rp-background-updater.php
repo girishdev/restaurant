@@ -11,6 +11,7 @@
  * @category Class
  * @author   WPEverest
  */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -32,15 +33,6 @@ class RP_Background_Updater extends WP_Background_Process {
 	 * @var string
 	 */
 	protected $action = 'rp_updater';
-
-	/**
-	 * Dispatch updater.
-	 *
-	 * Updater will still run via cron job if this fails for any reason.
-	 */
-	public function dispatch() {
-		parent::dispatch();
-	}
 
 	/**
 	 * Handle cron healthcheck
@@ -88,7 +80,7 @@ class RP_Background_Updater extends WP_Background_Process {
 	 * in the next pass through. Or, return false to remove the
 	 * item from the queue.
 	 *
-	 * @param string $callback Update callback function
+	 * @param string $callback Update callback function.
 	 * @return mixed
 	 */
 	protected function task( $callback ) {

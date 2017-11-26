@@ -37,7 +37,7 @@ class RP_Template_Loader {
 	 * this to the theme (containing a restaurantpress() inside) this will be used for all.
 	 * restaurantpress templates.
 	 *
-	 * @param mixed $template
+	 * @param  string $template The path of the template to include.
 	 * @return string
 	 */
 	public static function template_loader( $template ) {
@@ -72,16 +72,6 @@ class RP_Template_Loader {
 	private static function get_template_loader_default_file() {
 		if ( is_singular( 'food_menu' ) ) {
 			$default_file = 'single-food_menu.php';
-		// } elseif ( is_food_menu_taxonomy() ) {
-		// 	$term = get_queried_object();
-
-		// 	if ( is_tax( 'food_menu_cat' ) ) {
-		// 		$default_file = 'taxonomy-' . $term->taxonomy . '.php';
-		// 	} else {
-		// 		$default_file = 'archive-food.php';
-		// 	}
-		} elseif ( is_post_type_archive( 'food_menu' ) ) {
-			$default_file = 'archive-food.php';
 		} else {
 			$default_file = '';
 		}
@@ -99,6 +89,10 @@ class RP_Template_Loader {
 		$search_files   = apply_filters( 'restaurantpress_template_loader_files', array(), $default_file );
 		$search_files[] = 'restaurantpress.php';
 
+		if ( is_page_template() ) {
+			$search_files[] = get_page_template_slug();
+		}
+
 		if ( is_food_menu_taxonomy() ) {
 			$term   = get_queried_object();
 			$search_files[] = 'taxonomy-' . $term->taxonomy . '-' . $term->slug . '.php';
@@ -109,10 +103,6 @@ class RP_Template_Loader {
 
 		$search_files[] = $default_file;
 		$search_files[] = RP()->template_path() . $default_file;
-
-		if ( is_page_template()) {
-			$search_files[] = get_page_template_slug(); // Supporting Custom Post Type Template
-		}
 
 		return array_unique( $search_files );
 	}

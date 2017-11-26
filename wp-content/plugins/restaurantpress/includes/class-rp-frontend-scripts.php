@@ -72,7 +72,7 @@ class RP_Frontend_Scripts {
 				'version' => RP_VERSION,
 				'media'   => 'all',
 				'has_rtl' => true,
-			)
+			),
 		) );
 	}
 
@@ -171,6 +171,11 @@ class RP_Frontend_Scripts {
 				'deps'    => array( 'jquery' ),
 				'version' => '2.6.3',
 			),
+			'jquery-blockui' => array(
+				'src'     => self::get_asset_url( 'assets/js/jquery-blockui/jquery.blockUI' . $suffix . '.js' ),
+				'deps'    => array( 'jquery' ),
+				'version' => '2.70',
+			),
 			'photoswipe' => array(
 				'src'     => self::get_asset_url( 'assets/js/photoswipe/photoswipe' . $suffix . '.js' ),
 				'deps'    => array(),
@@ -180,6 +185,11 @@ class RP_Frontend_Scripts {
 				'src'     => self::get_asset_url( 'assets/js/photoswipe/photoswipe-ui-default' . $suffix . '.js' ),
 				'deps'    => array( 'photoswipe' ),
 				'version' => '4.1.1',
+			),
+			'selectWoo' => array(
+				'src'     => self::get_asset_url( 'assets/js/selectWoo/selectWoo.full' . $suffix . '.js' ),
+				'deps'    => array( 'jquery' ),
+				'version' => '1.0.0',
 			),
 			'rp-single-food' => array(
 				'src'     => self::get_asset_url( 'assets/js/frontend/single-food' . $suffix . '.js' ),
@@ -279,7 +289,7 @@ class RP_Frontend_Scripts {
 	 * @access private
 	 * @param  string $default_color
 	 */
-	private static function create_primary_styles( $default_color = '#d60e10' ) {
+	private static function create_primary_styles( $default_color = '#ff0033' ) {
 		$primary_color = get_option( 'restaurantpress_primary_color' );
 
 		// Check if the primary color is default?
@@ -298,11 +308,6 @@ class RP_Frontend_Scripts {
 				border-top-color: %1$s !important;
 			}
 
-			.restaurantpress p.price,
-			.restaurantpress span.price {
-				color: %1$s !important;
-			}
-
 			.restaurantpress span.price {
 				background: %1$s !important;
 			}
@@ -313,6 +318,13 @@ class RP_Frontend_Scripts {
 
 			.restaurantpress .rp-content-wrapper {
 				border-bottom-color: %1$s !important;
+			}
+
+			.restaurantpress-page p.price,
+			.restaurantpress-page span.price,
+			.rp-list-design-layout p.price,
+			.rp-list-design-layout span.price {
+				color: %1$s !important;
 			}
 
 			.rp-grid-design-layout ins .amount {
@@ -362,8 +374,8 @@ class RP_Frontend_Scripts {
 						'animationLoop'  => false, // Breaks photoswipe pagination if true.
 						'allowOneSlide'  => false,
 					) ),
-					'zoom_enabled'       => apply_filters( 'restaurantpress_single_food_zoom_enabled', 'yes' === get_option( 'restaurantpress_enable_lightbox' ) ? 1 : 0 ),
-					'photoswipe_enabled' => apply_filters( 'restaurantpress_single_food_photoswipe_enabled', 'yes' === get_option( 'restaurantpress_enable_lightbox' ) ? 1 : 0 ),
+					'zoom_enabled'       => apply_filters( 'restaurantpress_single_food_zoom_enabled', 'yes' === get_option( 'restaurantpress_enable_gallery_zoom' ) ? 1 : 0 ),
+					'photoswipe_enabled' => apply_filters( 'restaurantpress_single_food_photoswipe_enabled', 'yes' === get_option( 'restaurantpress_enable_gallery_lightbox' ) ? 1 : 0 ),
 					'photoswipe_options' => apply_filters( 'restaurantpress_single_food_photoswipe_options', array(
 						'shareEl'               => false,
 						'closeOnScroll'         => false,
@@ -371,7 +383,7 @@ class RP_Frontend_Scripts {
 						'hideAnimationDuration' => 0,
 						'showAnimationDuration' => 0,
 					) ),
-					'flexslider_enabled' => apply_filters( 'restaurantpress_single_food_flexslider_enabled', 'yes' === get_option( 'restaurantpress_enable_lightbox' ) ? 1 : 0 ),
+					'flexslider_enabled' => apply_filters( 'restaurantpress_single_food_flexslider_enabled', 'yes' === get_option( 'restaurantpress_enable_gallery_slider' ) ? 1 : 0 ),
 				);
 			break;
 		}

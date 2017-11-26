@@ -55,7 +55,7 @@ jQuery( function( $ ) {
 		}
 
 		// Make this object available.
-		$target.data( 'product_gallery', this );
+		$target.data( 'food_gallery', this );
 
 		// Pick functionality to initialize...
 		this.flexslider_enabled = $.isFunction( $.fn.flexslider ) && rp_single_food_params.flexslider_enabled;
@@ -152,6 +152,10 @@ jQuery( function( $ ) {
 	 * Init zoom.
 	 */
 	FoodGallery.prototype.initZoomForTarget = function( zoomTarget ) {
+		if ( ! this.zoom_enabled ) {
+			return false;
+		}
+
 		var galleryWidth = this.$target.width(),
 			zoomEnabled  = false;
 
